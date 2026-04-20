@@ -16,20 +16,39 @@ import (
 )
 
 func main() {
-	// Load config
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
-	// Connect to database
 	pool, err := connectDB(cfg.DatabaseURL)
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
 	defer pool.Close()
 
-	// Set up router
+	router := createRouter(cfg)
+	registerRoutes(router, pool)
+	startServer(cfg.Port, router)
+}
+
+// connectDB creates a connection pool to PostgreSQL and verifies the connection.
+func connectDB(databaseURL string) (*pgxpool.Pool, error) {
+	pool, err := pgxpool.New(context.Background(), databaseURL)
+	if err != nil {
+		return nil, fmt.Errorf("creating pool: %w", err)
+	}
+
+	if err := pool.Ping(context.Background()); err != nil {
+		return nil, fmt.Errorf("pinging database: %w", err)
+	}
+
+	log.Println("Connected to database")
+	return pool, nil
+}
+
+// createRouter creates a Chi router with standard middleware and a root health page.
+func createRouter(cfg *config.Config) *chi.Mux {
 	router := chi.NewMux()
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
@@ -39,38 +58,24 @@ func main() {
 		fmt.Fprintf(w, "Dozingo API is running\nDocs: http://localhost:%s/docs", cfg.Port)
 	})
 
-	// Set up huma API
-	api := humachi.New(router, huma.DefaultConfig("Dozingo API", "0.1.0"))
-	// All routes registered on apiGroup will be prefixed with /api; e.g. /lecturers -> /api/lecturers
-	apiGroup := huma.NewGroup(api, "/api")
-
-	// Register handlers
-	handler.RegisterHealth(apiGroup)
-	handler.RegisterLecturers(apiGroup, pool)
-
-	_ = pool
-
-	// Serve
-	addr := fmt.Sprintf(":%s", cfg.Port)
-	log.Printf("Server starting on %s", addr)
-	log.Printf("API docs available at http://localhost:%s/docs", cfg.Port)
-	if err := http.ListenAndServe(addr, router); err != nil {
-		log.Fatalf("server failed: %v", err)
-	}
+	return router
 }
 
-func connectDB(databaseURL string) (*pgxpool.Pool, error) {
-	// Connect to database
-	pool, err := pgxpool.New(context.Background(), databaseURL)
-	if err != nil {
-		return nil, fmt.Errorf("creating pool: %w", err)
-	}
+// registerRoutes sets up the Huma API and registers all handler groups.
+func registerRoutes(router *chi.Mux, pool *pgxpool.Pool) {
+	api := humachi.New(router, huma.DefaultConfig("Dozingo API", "0.1.0"))
+	apiGroup := huma.NewGroup(api, "/api")
 
-	// Verify connection
-	if err := pool.Ping(context.Background()); err != nil {
-		return nil, fmt.Errorf("pinging database: %w", err)
-	}
+	handler.RegisterHealth(apiGroup)
+	handler.RegisterLecturers(apiGroup, pool)
+}
 
-	log.Println("Connected to database")
-	return pool, nil
+// startServer begins listening on the given port and blocks until the server exits.
+func startServer(port string, handler http.Handler) {
+	addr := fmt.Sprintf(":%s", port)
+	log.Printf("Server starting on %s", addr)
+	log.Printf("API docs available at http://localhost:%s/docs", port)
+	if err := http.ListenAndServe(addr, handler); err != nil {
+		log.Fatalf("server failed: %v", err)
+	}
 }

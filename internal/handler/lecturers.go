@@ -26,7 +26,7 @@ type GetLecturerByIDInput struct {
 	ID string `path:"id" format:"uuid"`
 }
 
-type GetLecturerOutput struct {
+type GetLecturerByIDOutput struct {
 	Body LecturerOutput
 }
 
@@ -64,7 +64,7 @@ func RegisterLecturers(api huma.API, pool *pgxpool.Pool) {
 		Method:      http.MethodGet,
 		Path:        "/lecturers/{id}",
 		Summary:     "Get a lecturer by ID",
-	}, func(ctx context.Context, input *GetLecturerByIDInput) (*GetLecturerOutput, error) {
+	}, func(ctx context.Context, input *GetLecturerByIDInput) (*GetLecturerByIDOutput, error) {
 		return getLecturer(ctx, queries, *input)
 	})
 
@@ -104,7 +104,7 @@ func getLecturers(ctx context.Context, queries *generated.Queries) (*GetLecturer
 	return out, nil
 }
 
-func getLecturer(ctx context.Context, queries *generated.Queries, input GetLecturerByIDInput) (*GetLecturerOutput, error) {
+func getLecturer(ctx context.Context, queries *generated.Queries, input GetLecturerByIDInput) (*GetLecturerByIDOutput, error) {
 	id, err := uuidFromString(input.ID)
 	if err != nil {
 		return nil, huma.Error400BadRequest("invalid id")
@@ -115,7 +115,7 @@ func getLecturer(ctx context.Context, queries *generated.Queries, input GetLectu
 		return nil, huma.Error404NotFound("lecturer not found")
 	}
 
-	return &GetLecturerOutput{Body: lecturerToOutput(lecturer)}, nil
+	return &GetLecturerByIDOutput{Body: lecturerToOutput(lecturer)}, nil
 }
 
 func createLecturer(ctx context.Context, queries *generated.Queries, input CreateLecturerInput) (*CreateLecturerOutput, error) {
