@@ -16,16 +16,16 @@ TablePartial timestamps {
 
 Table users {
   id uuid [pk, default: `gen_random_uuid()`]
-  username varchar [unique]
-  email varchar [unique, not null]
+  username text [unique]
+  email text [unique, not null]
   ~timestamps
 }
 
 Table user_authentications {
   id uuid [pk, default: `gen_random_uuid()`]
   user_id uuid [not null]
-  provider varchar [not null]
-  provider_user_id varchar [not null]
+  provider text [not null]
+  provider_user_id text [not null]
   ~timestamps
   indexes {
     (provider, provider_user_id) [unique, name: 'uq_provider_identity']
@@ -40,14 +40,14 @@ Ref: user_authentications.user_id > users.id [delete: cascade]
 
 Table lecturers {
   id uuid [pk, default: `gen_random_uuid()`]
-  name varchar [not null]
-  slug varchar [unique, not null, note: 'URL-friendly identifier']
+  name text [not null]
+  slug text [unique, not null, note: 'URL-friendly identifier']
   ~timestamps
 }
 
 Table bingo_boards {
   id uuid [pk, default: `gen_random_uuid()`]
-  title varchar [not null]
+  title text [not null]
   size integer [not null, default: 5, note: 'size=5 means a 5x5 board']
   author_id uuid [not null]
   lecturer_id uuid
@@ -60,11 +60,11 @@ Table bingo_boards {
 Table bingo_cells {
   id uuid [pk, default: `gen_random_uuid()`]
   board_id uuid [not null]
-  content varchar [not null]
+  content text [not null]
   ~timestamps
 }
 
-Table board_ratings {
+Table board_votes {
   id uuid [pk, default: `gen_random_uuid()`]
   user_id uuid [not null]
   board_id uuid [not null]
@@ -81,5 +81,5 @@ Table board_ratings {
 Ref: bingo_boards.author_id > users.id [delete: cascade]
 Ref: bingo_boards.lecturer_id > lecturers.id [delete: set null]
 Ref: bingo_cells.board_id > bingo_boards.id [delete: cascade]
-Ref: board_ratings.user_id > users.id [delete: cascade]
-Ref: board_ratings.board_id > bingo_boards.id [delete: cascade]
+Ref: board_votes.user_id > users.id [delete: cascade]
+Ref: board_votes.board_id > bingo_boards.id [delete: cascade]

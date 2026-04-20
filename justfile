@@ -1,3 +1,6 @@
+# Load .env file so just has access to env-variables
+set dotenv-load
+
 # Default: list available commands
 default:
     @just --list
