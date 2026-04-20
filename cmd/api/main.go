@@ -34,6 +34,11 @@ func main() {
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
 
+	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		fmt.Fprintf(w, "Dozingo API is running\nDocs: http://localhost:%s/docs", cfg.Port)
+	})
+
 	// Set up huma API
 	api := humachi.New(router, huma.DefaultConfig("Dozingo API", "0.1.0"))
 
