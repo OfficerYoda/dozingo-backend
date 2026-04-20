@@ -1,0 +1,85 @@
+Project bingo {
+  database_type: 'PostgreSQL'
+  Note: '''
+    Dozingo — Multiplayer bingo game
+  '''
+}
+
+//// ============================================
+//// IDENTITY & AUTH
+//// ============================================
+
+TablePartial timestamps {
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+}
+
+Table users {
+  id uuid [pk, default: `gen_random_uuid()`]
+  username varchar [unique]
+  email varchar [unique, not null]
+  ~timestamps
+}
+
+Table user_authentications {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  provider varchar [not null]
+  provider_user_id varchar [not null]
+  ~timestamps
+  indexes {
+    (provider, provider_user_id) [unique, name: 'uq_provider_identity']
+  }
+}
+
+Ref: user_authentications.user_id > users.id [delete: cascade]
+
+//// ============================================
+//// BOARDS & RATINGS
+//// ============================================
+
+Table lecturers {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name varchar [not null]
+  slug varchar [unique, not null, note: 'URL-friendly identifier']
+  ~timestamps
+}
+
+Table bingo_boards {
+  id uuid [pk, default: `gen_random_uuid()`]
+  title varchar [not null]
+  size integer [not null, default: 5, note: 'size=5 means a 5x5 board']
+  author_id uuid [not null]
+  lecturer_id uuid
+  ~timestamps
+  checks {
+    `size >= 3 AND size <= 7` [name: 'chk_board_size']
+  }
+}
+
+Table bingo_cells {
+  id uuid [pk, default: `gen_random_uuid()`]
+  board_id uuid [not null]
+  content varchar [not null]
+  ~timestamps
+}
+
+Table board_ratings {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  board_id uuid [not null]
+  vote_value integer [not null]
+  ~timestamps
+  indexes {
+    (user_id, board_id) [unique, name: 'uq_one_vote_per_user']
+  }
+  checks {
+    `vote_value IN (1, -1)` [name: 'chk_vote_value']
+  }
+}
+
+Ref: bingo_boards.author_id > users.id [delete: cascade]
+Ref: bingo_boards.lecturer_id > lecturers.id [delete: set null]
+Ref: bingo_cells.board_id > bingo_boards.id [delete: cascade]
+Ref: board_ratings.user_id > users.id [delete: cascade]
+Ref: board_ratings.board_id > bingo_boards.id [delete: cascade]
