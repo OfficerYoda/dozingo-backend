@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: dozingo-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: dozingo_user
+      POSTGRES_PASSWORD: dozingo_pass
+      POSTGRES_DB: dozingo_db
+    volumes:
+      - dozingo-pgdata:/var/lib/postgresql/data
+
+volumes:
+  dozingo-pgdata:

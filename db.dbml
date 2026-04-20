@@ -1,7 +1,7 @@
 Project bingo {
   database_type: 'PostgreSQL'
   Note: '''
-    Dozingo — Multiplayer bingo game
+    Dozingo
   '''
 }
 
