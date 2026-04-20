@@ -41,10 +41,12 @@ func main() {
 
 	// Set up huma API
 	api := humachi.New(router, huma.DefaultConfig("Dozingo API", "0.1.0"))
+	// All routes registered on apiGroup will be prefixed with /api; e.g. /lecturers -> /api/lecturers
+	apiGroup := huma.NewGroup(api, "/api")
 
 	// Register handlers
-	handler.RegisterHealth(api)
-	handler.RegisterLecturers(api, pool)
+	handler.RegisterHealth(apiGroup)
+	handler.RegisterLecturers(apiGroup, pool)
 
 	_ = pool
 
