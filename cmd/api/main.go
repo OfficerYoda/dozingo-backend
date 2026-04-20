@@ -39,7 +39,7 @@ func main() {
 
 	// Register handlers
 	handler.RegisterHealth(api)
-	// TODO: register more handlers here, passing pool as needed
+	handler.RegisterLecturers(api, pool)
 
 	_ = pool
 
