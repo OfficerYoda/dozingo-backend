@@ -1,0 +1,6 @@
+[tools]
+go = "1.24"
+just = "1.49.0"
+sqlc = "1.30.0"
+gomigrate = "4.18.3"
+"golangci-lint" = "2.11.4"

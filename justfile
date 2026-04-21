@@ -7,8 +7,14 @@ default:
 
 # === Setup ===
 
+# Install all project tools via mise
+tools:
+    mise install
+
 # First-time project setup (run once after cloning)
 setup:
+    @echo "Installing tools via mise..."
+    just tools
     @echo "Copying .env.example → .env (if .env doesn't exist)..."
     cp -n .env.example .env || true
     @echo "Starting infrastructure..."

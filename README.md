@@ -6,26 +6,27 @@ A bingo game for university lectures. Built with Go.
 
 ## Prerequisites
 
-Install these before starting. Everything else is handled by Docker and Go
-modules.
+Install these two things manually. Everything else is handled by
+[mise](https://mise.jdx.dev/) (a tool version manager), Docker, and Go modules.
 
-| Tool                      | What it's for                      | Docs                                                                           | Install (macOS)               |
-| ------------------------- | ---------------------------------- | ------------------------------------------------------------------------------ | ----------------------------- |
-| **Go 1.24+**              | The language                       | [go.dev](https://go.dev/)                                                      | `brew install go`             |
-| **Docker** (with Compose) | Runs PostgreSQL locally            | [docs.docker.com](https://docs.docker.com/)                                    | `brew install --cask docker`  |
-| **just**                  | Task runner (like make, but nicer) | [github.com/casey/just](https://github.com/casey/just)                         | `brew install just`           |
-| **sqlc**                  | Generates Go code from SQL         | [docs.sqlc.dev](https://docs.sqlc.dev/)                                        | `brew install sqlc`           |
-| **golang-migrate**        | Database migrations                | [github.com/golang-migrate/migrate](https://github.com/golang-migrate/migrate) | `brew install golang-migrate` |
-| **golangci-lint**         | Linter                             | [golangci-lint.run](https://golangci-lint.run/)                                | `brew install golangci-lint`  |
+| Tool                      | What it's for                                                  | Install                                                                   |
+| ------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **mise**                  | Manages all dev tools (Go, just, sqlc, golang-migrate, linter) | [mise.jdx.dev/getting-started](https://mise.jdx.dev/getting-started.html) |
+| **Docker** (with Compose) | Runs PostgreSQL locally                                        | [docs.docker.com](https://docs.docker.com/)                               |
+
+> **How it works:** Tool versions are pinned in `.mise.toml` at the project
+> root. Running `mise install` (or `just setup`) installs exactly the right
+> versions of Go, just, sqlc, golang-migrate, and golangci-lint. No more "works
+> on my machine" issues.
+
+> > [!WARNING] Make sure mise is activated in your shell
+> > ([instructions](https://mise.jdx.dev/getting-started.html#activate-mise)).
 
 Verify everything works:
 
 ```bash
-go version           # go1.24.x or higher
+mise --version       # any recent version
 docker --version     # any recent version
-just --version       # any version
-sqlc version         # any version
-migrate -version     # any version
 ```
 
 ## Getting Started
@@ -35,10 +36,13 @@ migrate -version     # any version
 git clone https://github.com/officeryoda/dozingo-backend.git
 cd dozingo-backend
 
-# 2. Run first-time setup
+# 2. Install all tools (Go, just, sqlc, etc.)
+mise install
+
+# 3. Run first-time setup (infra, migrations, codegen, deps)
 just setup
 
-# 3. Start the server
+# 4. Start the server
 just run
 ```
 
@@ -59,6 +63,7 @@ Run `just` (with no arguments) to see all commands:
 
 ```bash
 just setup          # First-time setup (run once after cloning)
+just tools          # Install/update project tools via mise
 just run            # Start the Go server
 just infra-up       # Start postgres
 just infra-down     # Stop postgres
@@ -127,6 +132,7 @@ dozingo-backend/
 │   ├── handler/                ← HTTP handlers (huma)
 │   ├── service/                ← Business logic
 │   └── middleware/             ← Auth, logging, etc.
+├── .mise.toml                  ← Pinned tool versions (managed by mise)
 ├── docker-compose.yml          ← Local PostgreSQL
 ├── sqlc.yaml                   ← sqlc configuration
 ├── justfile                    ← All project commands
