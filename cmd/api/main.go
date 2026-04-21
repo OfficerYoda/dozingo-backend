@@ -70,6 +70,7 @@ func registerRoutes(router *chi.Mux, pool *pgxpool.Pool) {
 
 	handler.RegisterHealth(apiGroup)
 	handler.RegisterLecturers(apiGroup, pool)
+	handler.RegisterBoards(apiGroup, pool)
 }
 
 // startServer begins listening on the given port and blocks until the server exits.
