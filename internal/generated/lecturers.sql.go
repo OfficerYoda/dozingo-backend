@@ -85,13 +85,13 @@ func (q *Queries) GetLecturers(ctx context.Context) ([]Lecturer, error) {
 	return items, nil
 }
 
-const getLecturersById = `-- name: GetLecturersById :one
+const getLecturersByID = `-- name: GetLecturersByID :one
 SELECT id, name, slug, created_at, updated_at FROM lecturers
 WHERE id = $1
 `
 
-func (q *Queries) GetLecturersById(ctx context.Context, id pgtype.UUID) (Lecturer, error) {
-	row := q.db.QueryRow(ctx, getLecturersById, id)
+func (q *Queries) GetLecturersByID(ctx context.Context, id pgtype.UUID) (Lecturer, error) {
+	row := q.db.QueryRow(ctx, getLecturersByID, id)
 	var i Lecturer
 	err := row.Scan(
 		&i.ID,

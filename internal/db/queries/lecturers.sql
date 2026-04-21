@@ -2,7 +2,7 @@
 SELECT * FROM lecturers
 ORDER BY name ASC;
 
--- name: GetLecturersById :one
+-- name: GetLecturersByID :one
 SELECT * FROM lecturers
 WHERE id = $1;
 

@@ -110,7 +110,7 @@ func getLecturer(ctx context.Context, queries *generated.Queries, input GetLectu
 		return nil, huma.Error400BadRequest("invalid id")
 	}
 
-	lecturer, err := queries.GetLecturersById(ctx, id)
+	lecturer, err := queries.GetLecturersByID(ctx, id)
 	if err != nil {
 		return nil, huma.Error404NotFound("lecturer not found")
 	}
