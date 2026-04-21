@@ -14,8 +14,8 @@ import (
 
 type LecturerOutput struct {
 	ID   string `json:"id" format:"uuid"`
-	Name string `json:"name" required:"true" maxLength:"200"`
-	Slug string `json:"slug" required:"true" maxLength:"200" pattern:"^[a-z0-9-]+$" example:"juergen-rhoetig" doc:"URL friendly identifier, lowercase letters, numbers and hyphons only"`
+	Name string `json:"name" format:"text" maxLength:"200"`
+	Slug string `json:"slug" format:"text" maxLength:"200" pattern:"^[a-z0-9-]+$" example:"juergen-rhoetig" doc:"URL friendly identifier, lowercase letters, numbers and hyphons only"`
 }
 
 type GetLecturersOutput struct {
@@ -32,8 +32,8 @@ type GetLecturerByIDOutput struct {
 
 type CreateLecturerInput struct {
 	Body struct {
-		Name string `json:"name" required:"true" maxLength:"200"`
-		Slug string `json:"slug" required:"true" maxLength:"200" pattern:"^[a-z0-9-]+$" example:"juergen-rhoetig" doc:"URL friendly identifier, lowercase letters, numbers and hyphons only"`
+		Name string `json:"name" format:"text" required:"true" maxLength:"200"`
+		Slug string `json:"slug" format:"text" required:"true" maxLength:"200" pattern:"^[a-z0-9-]+$" example:"juergen-rhoetig" doc:"URL friendly identifier, lowercase letters, numbers and hyphons only"`
 	}
 }
 
@@ -55,17 +55,19 @@ func RegisterLecturers(api huma.API, pool *pgxpool.Pool) {
 		Method:      http.MethodGet,
 		Path:        "/lecturers",
 		Summary:     "Get all lecturers",
+		Tags:        []string{"Lecturers"},
 	}, func(ctx context.Context, input *struct{}) (*GetLecturersOutput, error) {
 		return getLecturers(ctx, queries)
 	})
 
 	huma.Register(api, huma.Operation{
-		OperationID: "get-lecturer",
+		OperationID: "get-lecturer-by-id",
 		Method:      http.MethodGet,
 		Path:        "/lecturers/{id}",
 		Summary:     "Get a lecturer by ID",
+		Tags:        []string{"Lecturers"},
 	}, func(ctx context.Context, input *GetLecturerByIDInput) (*GetLecturerByIDOutput, error) {
-		return getLecturer(ctx, queries, *input)
+		return getLecturerByID(ctx, queries, *input)
 	})
 
 	huma.Register(api, huma.Operation{
@@ -73,6 +75,7 @@ func RegisterLecturers(api huma.API, pool *pgxpool.Pool) {
 		Method:      http.MethodPost,
 		Path:        "/lecturers",
 		Summary:     "Create a lecturer",
+		Tags:        []string{"Lecturers"},
 	}, func(ctx context.Context, input *CreateLecturerInput) (*CreateLecturerOutput, error) {
 		return createLecturer(ctx, queries, *input)
 	})
@@ -82,6 +85,7 @@ func RegisterLecturers(api huma.API, pool *pgxpool.Pool) {
 		Method:      http.MethodDelete,
 		Path:        "/lecturers/{id}",
 		Summary:     "Delete a lecturer",
+		Tags:        []string{"Lecturers"},
 	}, func(ctx context.Context, input *DeleteLecturerInput) (*struct{}, error) {
 		return deleteLecturer(ctx, queries, *input)
 	})
@@ -92,7 +96,7 @@ func RegisterLecturers(api huma.API, pool *pgxpool.Pool) {
 func getLecturers(ctx context.Context, queries *generated.Queries) (*GetLecturersOutput, error) {
 	lecturers, err := queries.GetLecturers(ctx)
 	if err != nil {
-		return nil, huma.Error500InternalServerError("failed to get lecturers")
+		return nil, huma.Error500InternalServerError("failed to get lecturers", err)
 	}
 
 	out := &GetLecturersOutput{}
@@ -104,17 +108,16 @@ func getLecturers(ctx context.Context, queries *generated.Queries) (*GetLecturer
 	return out, nil
 }
 
-func getLecturer(ctx context.Context, queries *generated.Queries, input GetLecturerByIDInput) (*GetLecturerByIDOutput, error) {
+func getLecturerByID(ctx context.Context, queries *generated.Queries, input GetLecturerByIDInput) (*GetLecturerByIDOutput, error) {
 	id, err := uuidFromString(input.ID)
 	if err != nil {
-		return nil, huma.Error400BadRequest("invalid id")
+		return nil, huma.Error400BadRequest("invalid id", err)
 	}
 
 	lecturer, err := queries.GetLecturersByID(ctx, id)
 	if err != nil {
-		return nil, huma.Error404NotFound("lecturer not found")
+		return nil, huma.Error404NotFound("lecturer not found", err)
 	}
-
 	return &GetLecturerByIDOutput{Body: lecturerToOutput(lecturer)}, nil
 }
 
@@ -124,7 +127,7 @@ func createLecturer(ctx context.Context, queries *generated.Queries, input Creat
 		Slug: input.Body.Slug,
 	})
 	if err != nil {
-		return nil, huma.Error500InternalServerError("failed to create lecturer")
+		return nil, huma.Error500InternalServerError("failed to create lecturer", err)
 	}
 
 	return &CreateLecturerOutput{Body: lecturerToOutput(lecturer)}, nil
@@ -133,15 +136,15 @@ func createLecturer(ctx context.Context, queries *generated.Queries, input Creat
 func deleteLecturer(ctx context.Context, queries *generated.Queries, input DeleteLecturerInput) (*struct{}, error) {
 	id, err := uuidFromString(input.ID)
 	if err != nil {
-		return nil, huma.Error400BadRequest("invalid id")
+		return nil, huma.Error400BadRequest("invalid id", err)
 	}
 
 	_, err = queries.DeleteLecturer(ctx, id)
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return nil, huma.Error404NotFound("lecturer not found")
+			return nil, huma.Error404NotFound("lecturer not found", err)
 		}
-		return nil, huma.Error500InternalServerError("failed to delete lecturer")
+		return nil, huma.Error500InternalServerError("failed to delete lecturer", err)
 	}
 
 	return nil, nil

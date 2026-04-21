@@ -69,6 +69,7 @@ func RegisterBoards(api huma.API, pool *pgxpool.Pool) {
 		Method:      http.MethodGet,
 		Path:        "/boards",
 		Summary:     "Get all boards with optional filters",
+		Tags:        []string{"Boards"},
 	}, func(ctx context.Context, input *GetBoardsInput) (*GetBoardsOutput, error) {
 		return getBoards(ctx, pool, *input)
 	})
@@ -78,6 +79,7 @@ func RegisterBoards(api huma.API, pool *pgxpool.Pool) {
 		Method:      http.MethodGet,
 		Path:        "/boards/{id}",
 		Summary:     "Get a board by ID",
+		Tags:        []string{"Boards"},
 	}, func(ctx context.Context, input *GetBoardByIDInput) (*GetBoardByIDOutput, error) {
 		return getBoardByID(ctx, queries, *input)
 	})
@@ -87,6 +89,7 @@ func RegisterBoards(api huma.API, pool *pgxpool.Pool) {
 		Method:      http.MethodPost,
 		Path:        "/boards",
 		Summary:     "Create a board",
+		Tags:        []string{"Boards"},
 	}, func(ctx context.Context, input *CreateBoardInput) (*CreateBoardOutput, error) {
 		return createBoard(ctx, queries, *input)
 	})
@@ -96,6 +99,7 @@ func RegisterBoards(api huma.API, pool *pgxpool.Pool) {
 		Method:      http.MethodDelete,
 		Path:        "/boards/{id}",
 		Summary:     "Delete a board",
+		Tags:        []string{"Boards"},
 	}, func(ctx context.Context, input *DeleteBoardInput) (*struct{}, error) {
 		return deleteBoard(ctx, queries, *input)
 	})
