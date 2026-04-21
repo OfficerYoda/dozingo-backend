@@ -55,7 +55,9 @@ func createRouter(cfg *config.Config) *chi.Mux {
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
-		fmt.Fprintf(w, "Dozingo API is running\nDocs: http://localhost:%s/docs", cfg.Port)
+		if _, err := fmt.Fprintf(w, "Dozingo API is running\nDocs: http://localhost:%s/docs", cfg.Port); err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
 	})
 
 	return router
