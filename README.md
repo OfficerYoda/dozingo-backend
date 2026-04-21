@@ -32,8 +32,8 @@ migrate -version     # any version
 
 ```bash
 # 1. Clone the project
-git clone https://github.com/officeryoda/dozingo.git
-cd dozingo
+git clone https://github.com/officeryoda/dozingo-backend.git
+cd dozingo-backend
 
 # 2. Run first-time setup
 just setup
@@ -116,7 +116,7 @@ just generate
 ## Project Structure
 
 ```
-dozingo/
+dozingo-backend/
 ├── cmd/api/                    ← Entry point (main.go)
 ├── internal/
 │   ├── config/                 ← Environment variable loading
