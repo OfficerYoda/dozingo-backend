@@ -45,7 +45,7 @@ Table lecturers {
   ~timestamps
 }
 
-Table bingo_boards {
+Table boards {
   id uuid [pk, default: `gen_random_uuid()`]
   title text [not null]
   size integer [not null, default: 5, note: 'size=5 means a 5x5 board']
@@ -57,14 +57,14 @@ Table bingo_boards {
   }
 }
 
-Table bingo_cells {
+Table cells {
   id uuid [pk, default: `gen_random_uuid()`]
   board_id uuid [not null]
   content text [not null]
   ~timestamps
 }
 
-Table board_votes {
+Table votes {
   id uuid [pk, default: `gen_random_uuid()`]
   user_id uuid [not null]
   board_id uuid [not null]
@@ -78,8 +78,8 @@ Table board_votes {
   }
 }
 
-Ref: bingo_boards.author_id > users.id [delete: cascade]
-Ref: bingo_boards.lecturer_id > lecturers.id [delete: set null]
-Ref: bingo_cells.board_id > bingo_boards.id [delete: cascade]
-Ref: board_votes.user_id > users.id [delete: cascade]
-Ref: board_votes.board_id > bingo_boards.id [delete: cascade]
+Ref: boards.author_id > users.id [delete: cascade]
+Ref: boards.lecturer_id > lecturers.id [delete: set null]
+Ref: cells.board_id > boards.id [delete: cascade]
+Ref: votes.user_id > users.id [delete: cascade]
+Ref: votes.board_id > boards.id [delete: cascade]

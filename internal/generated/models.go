@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type BingoBoard struct {
+type Board struct {
 	ID         pgtype.UUID        `json:"id"`
 	Title      string             `json:"title"`
 	Size       int32              `json:"size"`
@@ -18,19 +18,10 @@ type BingoBoard struct {
 	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
 }
 
-type BingoCell struct {
+type Cell struct {
 	ID        pgtype.UUID        `json:"id"`
 	BoardID   pgtype.UUID        `json:"board_id"`
 	Content   string             `json:"content"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
-}
-
-type BoardVote struct {
-	ID        pgtype.UUID        `json:"id"`
-	UserID    pgtype.UUID        `json:"user_id"`
-	BoardID   pgtype.UUID        `json:"board_id"`
-	VoteValue int32              `json:"vote_value"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }
@@ -58,4 +49,13 @@ type UserAuthentication struct {
 	ProviderUserID string             `json:"provider_user_id"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+}
+
+type Vote struct {
+	ID        pgtype.UUID        `json:"id"`
+	UserID    pgtype.UUID        `json:"user_id"`
+	BoardID   pgtype.UUID        `json:"board_id"`
+	VoteValue int32              `json:"vote_value"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }
