@@ -7,8 +7,28 @@ default:
 
 # === Setup ===
 
+# Check that mise is installed and activated
+[private]
+check-mise:
+    #!/usr/bin/env bash
+    if ! command -v mise &> /dev/null; then
+        echo ""
+        echo "ERROR: mise is not installed or not activated in your shell."
+        echo ""
+        echo "1. Install mise:  https://mise.jdx.dev/getting-started.html"
+        echo "2. Activate mise in your shell:"
+        echo ""
+        echo "   bash:  echo 'eval \"\$(mise activate bash)\"' >> ~/.bashrc"
+        echo "   zsh:   echo 'eval \"\$(mise activate zsh)\"'  >> ~/.zshrc"
+        echo "   fish:  echo 'mise activate fish | source'     >> ~/.config/fish/config.fish"
+        echo ""
+        echo "3. Restart your terminal and try again."
+        echo ""
+        exit 1
+    fi
+
 # Install all project tools via mise
-tools:
+tools: check-mise
     mise install
 
 # First-time project setup (run once after cloning)

@@ -9,18 +9,34 @@ A bingo game for university lectures. Built with Go.
 Install these two things manually. Everything else is handled by
 [mise](https://mise.jdx.dev/) (a tool version manager), Docker, and Go modules.
 
-| Tool                      | What it's for                                                  | Install                                                                   |
-| ------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| **mise**                  | Manages all dev tools (Go, just, sqlc, golang-migrate, linter) | [mise.jdx.dev/getting-started](https://mise.jdx.dev/getting-started.html) |
-| **Docker** (with Compose) | Runs PostgreSQL locally                                        | [docs.docker.com](https://docs.docker.com/)                               |
+| Tool                      | What it's for                                                  | Install                                                                      |
+| ------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| **mise**                  | Manages all dev tools (Go, just, sqlc, golang-migrate, linter) | `brew install mise` or [see docs](https://mise.jdx.dev/getting-started.html) |
+| **Docker** (with Compose) | Runs PostgreSQL locally                                        | `brew install docker` or [see docs](https://docs.docker.com/)                |
 
 > **How it works:** Tool versions are pinned in `.mise.toml` at the project
 > root. Running `mise install` (or `just setup`) installs exactly the right
 > versions of Go, just, sqlc, golang-migrate, and golangci-lint. No more "works
 > on my machine" issues.
 
-> > [!WARNING] Make sure mise is activated in your shell
-> > ([instructions](https://mise.jdx.dev/getting-started.html#activate-mise)).
+### Activating mise (one-time)
+
+After installing mise, you need to activate it in your shell so that tools are
+available automatically. Run **one** of these depending on your shell, then
+**restart your terminal**:
+
+```bash
+# bash
+echo 'eval "$(mise activate bash)"' >> ~/.bashrc
+
+# zsh
+echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
+
+# fish
+echo 'mise activate fish | source' >> ~/.config/fish/config.fish
+```
+
+> If you skip this step, `just setup` will remind you.
 
 Verify everything works:
 
