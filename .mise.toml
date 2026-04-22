@@ -1,5 +1,5 @@
 [tools]
-go = "1.26"
+go = "1.25"
 just = "1.49.0"
 sqlc = "1.30.0"
 gomigrate = "4.18.3"
