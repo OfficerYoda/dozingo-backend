@@ -63,7 +63,6 @@ func RegisterBoards(api huma.API, pool *pgxpool.Pool) {
 
 	_ = queries
 
-	// GET    /boards              → list all boards (with optional query params)
 	huma.Register(api, huma.Operation{
 		OperationID: "get-boards",
 		Method:      http.MethodGet,
@@ -145,21 +144,21 @@ func getBoardByID(ctx context.Context, queries *generated.Queries, input GetBoar
 func createBoard(ctx context.Context, queries *generated.Queries, input CreateBoardInput) (*CreateBoardOutput, error) {
 	authorID, err := uuidFromString(input.Body.AuthorID)
 	if err != nil {
-		return nil, huma.Error500InternalServerError("Failed to parse author_id", err)
+		return nil, huma.Error400BadRequest("invalid author_id", err)
 	}
-	LecturerID, err := uuidFromString(input.Body.LecturerID)
+	lecturerID, err := uuidFromString(input.Body.LecturerID)
 	if err != nil {
-		return nil, huma.Error500InternalServerError("Failed to parse lecturer_id", err)
+		return nil, huma.Error400BadRequest("invalid lecturer_id", err)
 	}
 
 	board, err := queries.CreateBoard(ctx, generated.CreateBoardParams{
 		Title:      input.Body.Title,
 		Size:       input.Body.Size,
 		AuthorID:   authorID,
-		LecturerID: LecturerID,
+		LecturerID: lecturerID,
 	})
 	if err != nil {
-		return nil, huma.Error500InternalServerError("failed to create lecturer", err)
+		return nil, huma.Error500InternalServerError("failed to create board", err)
 	}
 
 	return &CreateBoardOutput{Body: boardToOutput(board)}, nil
@@ -179,7 +178,7 @@ func deleteBoard(ctx context.Context, queries *generated.Queries, input DeleteBo
 		return nil, huma.Error500InternalServerError("failed to delete board", err)
 	}
 
-	return nil, nil
+	return &struct{}{}, nil
 }
 
 /// ===== Helper =====
@@ -204,7 +203,6 @@ func queryBoardsFiltered(ctx context.Context, input GetBoardsInput, pool *pgxpoo
 	if input.Size != 0 {
 		query += fmt.Sprintf(" AND size = $%d", i)
 		args = append(args, input.Size)
-		i++
 	}
 
 	query += " ORDER BY created_at DESC;"

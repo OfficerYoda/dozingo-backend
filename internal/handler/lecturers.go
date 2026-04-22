@@ -147,7 +147,7 @@ func deleteLecturer(ctx context.Context, queries *generated.Queries, input Delet
 		return nil, huma.Error500InternalServerError("failed to delete lecturer", err)
 	}
 
-	return nil, nil
+	return &struct{}{}, nil
 }
 
 /// ===== Helper =====
