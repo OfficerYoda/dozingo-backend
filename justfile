@@ -78,10 +78,12 @@ infra-reset:
 # Apply all pending migrations
 migrate-up:
     migrate -path internal/db/migrations -database "$DATABASE_URL" up
+    migrate -path internal/db/migrations -database "$TEST_DATABASE_URL" up
 
 # Roll back the last migration
 migrate-down:
     migrate -path internal/db/migrations -database "$DATABASE_URL" down 1
+    migrate -path internal/db/migrations -database "$TEST_DATABASE_URL" down 1
 
 # Create a new migration (usage: just migrate-create name_of_migration)
 migrate-create name:
