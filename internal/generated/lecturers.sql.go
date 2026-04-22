@@ -54,6 +54,42 @@ func (q *Queries) DeleteLecturer(ctx context.Context, id pgtype.UUID) (Lecturer,
 	return i, err
 }
 
+const getLecturerByID = `-- name: GetLecturerByID :one
+SELECT id, name, slug, created_at, updated_at FROM lecturers
+WHERE id = $1
+`
+
+func (q *Queries) GetLecturerByID(ctx context.Context, id pgtype.UUID) (Lecturer, error) {
+	row := q.db.QueryRow(ctx, getLecturerByID, id)
+	var i Lecturer
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getLecturerBySlug = `-- name: GetLecturerBySlug :one
+SELECT id, name, slug, created_at, updated_at FROM lecturers
+WHERE slug = $1
+`
+
+func (q *Queries) GetLecturerBySlug(ctx context.Context, slug string) (Lecturer, error) {
+	row := q.db.QueryRow(ctx, getLecturerBySlug, slug)
+	var i Lecturer
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getLecturers = `-- name: GetLecturers :many
 SELECT id, name, slug, created_at, updated_at FROM lecturers
 ORDER BY name ASC
@@ -83,40 +119,4 @@ func (q *Queries) GetLecturers(ctx context.Context) ([]Lecturer, error) {
 		return nil, err
 	}
 	return items, nil
-}
-
-const getLecturersByID = `-- name: GetLecturersByID :one
-SELECT id, name, slug, created_at, updated_at FROM lecturers
-WHERE id = $1
-`
-
-func (q *Queries) GetLecturersByID(ctx context.Context, id pgtype.UUID) (Lecturer, error) {
-	row := q.db.QueryRow(ctx, getLecturersByID, id)
-	var i Lecturer
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Slug,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const getLecturersBySlug = `-- name: GetLecturersBySlug :one
-SELECT id, name, slug, created_at, updated_at FROM lecturers
-WHERE slug = $1
-`
-
-func (q *Queries) GetLecturersBySlug(ctx context.Context, slug string) (Lecturer, error) {
-	row := q.db.QueryRow(ctx, getLecturersBySlug, slug)
-	var i Lecturer
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Slug,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
 }

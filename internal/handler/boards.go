@@ -28,7 +28,7 @@ type GetBoardsInput struct {
 }
 
 type GetBoardsOutput struct {
-	Body []BoardOutput `json:"boards"`
+	Body []BoardOutput
 }
 
 type GetBoardByIDInput struct {

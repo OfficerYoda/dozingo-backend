@@ -23,7 +23,7 @@ type GetCellsByBoardIDInput struct {
 }
 
 type GetCellsByBoardIDOutput struct {
-	Body []CellOutput `json:"cells"`
+	Body []CellOutput
 }
 
 type CreateCellInput struct {
@@ -46,7 +46,7 @@ type UpdateCellInput struct {
 }
 
 type UpdateCellOutput struct {
-	Body CellOutput `json:"cell"`
+	Body CellOutput
 }
 
 type DeleteCellInput struct {

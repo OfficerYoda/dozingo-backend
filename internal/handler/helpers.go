@@ -1,6 +1,12 @@
 package handler
 
-import "github.com/jackc/pgx/v5/pgtype"
+import (
+	"regexp"
+
+	"github.com/jackc/pgx/v5/pgtype"
+)
+
+var uuidRegex = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
 
 func uuidFromString(s string) (pgtype.UUID, error) {
 	var id pgtype.UUID

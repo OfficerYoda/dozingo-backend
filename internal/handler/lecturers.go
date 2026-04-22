@@ -19,14 +19,14 @@ type LecturerOutput struct {
 }
 
 type GetLecturersOutput struct {
-	Body []LecturerOutput `json:"lecturers"`
+	Body []LecturerOutput
 }
 
-type GetLecturerByIDInput struct {
-	ID string `path:"id" format:"uuid"`
+type GetLecturerByIdentifierInput struct {
+	Identifier string `path:"identifier" format:"string" doc:"can be the slug or the uuid of the lecturer"`
 }
 
-type GetLecturerByIDOutput struct {
+type GetLecturerByIdentifierOutput struct {
 	Body LecturerOutput
 }
 
@@ -63,11 +63,11 @@ func RegisterLecturers(api huma.API, pool *pgxpool.Pool) {
 	huma.Register(api, huma.Operation{
 		OperationID: "get-lecturer-by-id",
 		Method:      http.MethodGet,
-		Path:        "/lecturers/{id}",
-		Summary:     "Get a lecturer by ID",
+		Path:        "/lecturers/{identifier}",
+		Summary:     "Get a lecturer by ID or slug",
 		Tags:        []string{"Lecturers"},
-	}, func(ctx context.Context, input *GetLecturerByIDInput) (*GetLecturerByIDOutput, error) {
-		return getLecturerByID(ctx, queries, *input)
+	}, func(ctx context.Context, input *GetLecturerByIdentifierInput) (*GetLecturerByIdentifierOutput, error) {
+		return getLecturerByIdentifier(ctx, queries, *input)
 	})
 
 	huma.Register(api, huma.Operation{
@@ -108,17 +108,32 @@ func getLecturers(ctx context.Context, queries *generated.Queries) (*GetLecturer
 	return out, nil
 }
 
-func getLecturerByID(ctx context.Context, queries *generated.Queries, input GetLecturerByIDInput) (*GetLecturerByIDOutput, error) {
-	id, err := uuidFromString(input.ID)
+func getLecturerByIdentifier(ctx context.Context, queries *generated.Queries, input GetLecturerByIdentifierInput) (*GetLecturerByIdentifierOutput, error) {
+	if uuidRegex.MatchString(input.Identifier) {
+		return getLecturerByID(ctx, queries, input.Identifier)
+	}
+	return getLecturerBySlug(ctx, queries, input.Identifier)
+}
+
+func getLecturerByID(ctx context.Context, queries *generated.Queries, uuid string) (*GetLecturerByIdentifierOutput, error) {
+	id, err := uuidFromString(uuid)
 	if err != nil {
 		return nil, huma.Error400BadRequest("invalid id", err)
 	}
 
-	lecturer, err := queries.GetLecturersByID(ctx, id)
+	lecturer, err := queries.GetLecturerByID(ctx, id)
 	if err != nil {
 		return nil, huma.Error404NotFound("lecturer not found", err)
 	}
-	return &GetLecturerByIDOutput{Body: lecturerToOutput(lecturer)}, nil
+	return &GetLecturerByIdentifierOutput{Body: lecturerToOutput(lecturer)}, nil
+}
+
+func getLecturerBySlug(ctx context.Context, queries *generated.Queries, slug string) (*GetLecturerByIdentifierOutput, error) {
+	lecturer, err := queries.GetLecturerBySlug(ctx, slug)
+	if err != nil {
+		return nil, huma.Error404NotFound("lecturer not found", err)
+	}
+	return &GetLecturerByIdentifierOutput{Body: lecturerToOutput(lecturer)}, nil
 }
 
 func createLecturer(ctx context.Context, queries *generated.Queries, input CreateLecturerInput) (*CreateLecturerOutput, error) {
