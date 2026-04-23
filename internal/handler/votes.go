@@ -93,7 +93,8 @@ func RegisterVotes(api huma.API, pool *pgxpool.Pool) {
 func getVotesByBoardID(ctx context.Context, queries *generated.Queries, input GetVotesByBoardIDInput) (*GetVotesByBoardIDOutput, error) {
 	userID, err := uuidFromString(input.UserID)
 	if err != nil {
-		return nil, huma.Error400BadRequest("invalid user_id", err)
+		// invalid user ID is allowed here;
+		userID, _ = uuidFromString("00000000-0000-0000-0000-000000000000")
 	}
 	boardID, err := uuidFromString(input.BoardID)
 	if err != nil {
