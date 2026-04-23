@@ -40,7 +40,7 @@ const getVotesByBoardID = `-- name: GetVotesByBoardID :one
 SELECT
     COALESCE(SUM(vote_value), 0)::int AS score,
     COUNT(*)::int                     AS vote_count,
-    MAX(CASE WHEN user_id = $2 THEN vote_value END)::int AS user_vote
+    COALESCE(MAX(CASE WHEN user_id = $2 THEN vote_value END), 0)::int AS user_vote
 FROM votes
 WHERE board_id = $1
 `
