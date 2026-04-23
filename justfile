@@ -105,6 +105,12 @@ test:
 lint:
     golangci-lint run
 
+# === Seeding ===
+
+# Seed the database with sample data (truncates existing data first)
+seed:
+    go run ./cmd/seed
+
 # === Helpers ===
 
 # Open a psql shell to the local database
