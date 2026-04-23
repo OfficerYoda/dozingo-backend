@@ -115,4 +115,4 @@ seed:
 
 # Open a psql shell to the local database
 db-shell:
-    docker exec -it dozingo-postgres psql -U dozingo_user -d dozingo_db
+    docker exec -it dozingo-postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
