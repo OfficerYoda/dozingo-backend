@@ -36,18 +36,18 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const deleteUser = `-- name: DeleteUser :one
-DELETE FROM lecturers
+DELETE FROM users
 WHERE id = $1
-RETURNING id, name, slug, created_at, updated_at
+RETURNING id, username, email, created_at, updated_at
 `
 
-func (q *Queries) DeleteUser(ctx context.Context, id pgtype.UUID) (Lecturer, error) {
+func (q *Queries) DeleteUser(ctx context.Context, id pgtype.UUID) (User, error) {
 	row := q.db.QueryRow(ctx, deleteUser, id)
-	var i Lecturer
+	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
-		&i.Slug,
+		&i.Username,
+		&i.Email,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
