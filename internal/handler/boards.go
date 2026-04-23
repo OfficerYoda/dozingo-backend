@@ -24,7 +24,7 @@ type BoardOutput struct {
 type GetBoardsInput struct {
 	AuthorID   string `query:"author_id"`
 	LecturerID string `query:"lecturer_id"`
-	Size       int    `query:"size"`
+	Size       int32  `query:"size"`
 }
 
 type GetBoardsOutput struct {
