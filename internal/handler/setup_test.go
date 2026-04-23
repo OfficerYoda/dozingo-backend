@@ -131,3 +131,44 @@ func assertJSONField(t *testing.T, data map[string]any, key string, expected str
 		t.Errorf("expected %q = %q, got %q", key, expected, str)
 	}
 }
+
+// createTestUser creates a user via the API and returns its ID.
+func createTestUser(t *testing.T, username, email string) string {
+	t.Helper()
+	w := doRequest(http.MethodPost, "/api/users", map[string]string{
+		"username": username,
+		"email":    email,
+	})
+	assertStatus(t, w, http.StatusOK)
+	var resp map[string]any
+	decodeJSON(t, w, &resp)
+	return resp["id"].(string)
+}
+
+// createTestLecturer creates a lecturer via the API and returns its ID.
+func createTestLecturer(t *testing.T, name, slug string) string {
+	t.Helper()
+	w := doRequest(http.MethodPost, "/api/lecturers", map[string]string{
+		"name": name,
+		"slug": slug,
+	})
+	assertStatus(t, w, http.StatusOK)
+	var resp map[string]any
+	decodeJSON(t, w, &resp)
+	return resp["id"].(string)
+}
+
+// createTestBoard creates a board via the API and returns its ID.
+func createTestBoard(t *testing.T, title string, size int, authorID, lecturerID string) string {
+	t.Helper()
+	w := doRequest(http.MethodPost, "/api/boards", map[string]any{
+		"title":       title,
+		"size":        size,
+		"author_id":   authorID,
+		"lecturer_id": lecturerID,
+	})
+	assertStatus(t, w, http.StatusOK)
+	var resp map[string]any
+	decodeJSON(t, w, &resp)
+	return resp["id"].(string)
+}
