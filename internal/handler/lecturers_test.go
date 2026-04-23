@@ -159,11 +159,7 @@ func TestDeleteLecturer_NotFound(t *testing.T) {
 	t.Cleanup(func() { cleanupTables(t) })
 
 	w := doRequest(http.MethodDelete, "/api/lecturers/00000000-0000-0000-0000-000000000000", nil)
-	// NOTE: This returns 500 instead of 404 due to a bug in lecturers.go:
-	// it compares against pgx.ErrNoRows from the legacy pgx v3 package,
-	// but the actual error comes from pgx/v5. The error instances don't match.
-	// The handler should use pgx/v5's pgx.ErrNoRows or errors.Is() instead.
-	assertStatus(t, w, http.StatusInternalServerError)
+	assertStatus(t, w, http.StatusNotFound)
 }
 
 func TestCreateLecturer_DuplicateSlug(t *testing.T) {

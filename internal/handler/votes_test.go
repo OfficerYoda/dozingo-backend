@@ -102,11 +102,23 @@ func TestGetVotesByBoardID_NoVotes(t *testing.T) {
 		fmt.Sprintf("/api/boards/%s/vote?user_id=%s", boardID, userID),
 		nil,
 	)
-	// NOTE: This returns 500 due to a bug in the votes SQL query / generated code.
-	// When no votes exist, MAX(CASE WHEN user_id = $2 THEN vote_value END)::int
-	// returns NULL, which cannot be scanned into the int32 field (GetVotesByBoardIDRow.UserVote).
-	// The fix would be to use COALESCE(..., 0) in the SQL or change the field to *int32.
-	assertStatus(t, w, http.StatusInternalServerError)
+	assertStatus(t, w, http.StatusOK)
+
+	var resp map[string]any
+	decodeJSON(t, w, &resp)
+
+	score := resp["score"].(float64)
+	voteCount := resp["vote_count"].(float64)
+
+	if int(score) != 0 {
+		t.Errorf("expected score = 0, got %v", score)
+	}
+	if int(voteCount) != 0 {
+		t.Errorf("expected vote_count = 0, got %v", voteCount)
+	}
+	if resp["user_vote"] != nil {
+		t.Errorf("expected user_vote = null, got %v", resp["user_vote"])
+	}
 }
 
 func TestGetVotesByBoardID_MultipleVoters(t *testing.T) {
@@ -167,12 +179,22 @@ func TestDeleteVote(t *testing.T) {
 	)
 	assertStatus(t, w, http.StatusNoContent)
 
-	// Verify vote is gone by trying to delete again (should 404)
-	w2 := doRequest(http.MethodDelete,
+	// Verify vote is gone via GET
+	getResp := doRequest(http.MethodGet,
 		fmt.Sprintf("/api/boards/%s/vote?user_id=%s", boardID, userID),
 		nil,
 	)
-	assertStatus(t, w2, http.StatusNotFound)
+	assertStatus(t, getResp, http.StatusOK)
+
+	var resp map[string]any
+	decodeJSON(t, getResp, &resp)
+
+	if int(resp["vote_count"].(float64)) != 0 {
+		t.Errorf("expected vote_count = 0 after delete, got %v", resp["vote_count"])
+	}
+	if resp["user_vote"] != nil {
+		t.Errorf("expected user_vote = null after delete, got %v", resp["user_vote"])
+	}
 }
 
 func TestDeleteVote_NotFound(t *testing.T) {
